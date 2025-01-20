@@ -1,9 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Data Visualization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid black;
+            cursor: pointer;
+        }
+    </style>
+</head>
 <body>
+    <h1>Binary Data Visualization</h1>
+    <p>Scroll to zoom in/out</p>
+    <canvas id="canvas" width="500" height="500"></canvas>
 
-<h1>My First Heading</h1>
-<p>My first paragraph.</p>
+    <script>
+        // Function to clean binary string
+        function cleanBinaryString(inputString) {
+            return inputString.split('').filter(char => char === '0' || char === '1').join('');
+        }
 
+        // Handle mouse scroll for zoom
+        let zoomFactor = 1.1;
+        let scale = 1;
+
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        // Example input string
+        const testInput = "I love you";
+        const cleanBinary = cleanBinaryString(testInput);
+        console.log("Cleaned binary string:", cleanBinary);
+
+        // Function to visualize binary data as squares
+        function visualizeBinarySquares(binaryString) {
+            const binaryList = binaryString.split('').map(Number);
+            const totalLength = binaryList.length;
+            const squareSize = Math.ceil(Math.sqrt(totalLength));
+
+            // Resize canvas based on square size
+            const cellSize = Math.floor(canvas.width / squareSize);
+            canvas.height = cellSize * squareSize;
+            
+            // Draw the binary matrix
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < totalLength; i++) {
+                const row = Math.floor(i / squareSize);
+                const col = i % squareSize;
+                const x = col * cellSize;
+                const y = row * cellSize;
+
+                ctx.fillStyle = binaryList[i] === 1 ? "black" : "white";
+                ctx.fillRect(x, y, cellSize, cellSize);
+            }
+        }
+
+        // Function to handle zooming
+        function handleZoom(event) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+
+            if (event.deltaY < 0) {
+                scale *= zoomFactor;
+            } else {
+                scale /= zoomFactor;
+            }
+
+            // Scale the canvas based on the zoom factor
+            ctx.setTransform(scale, 0, 0, scale, -mouseX * (scale - 1), -mouseY * (scale - 1));
+            visualizeBinarySquares(cleanBinary);
+        }
+
+        // Add scroll event listener for zoom functionality
+        canvas.addEventListener('wheel', handleZoom);
+
+        // Initial render of the binary square visualization
+        visualizeBinarySquares(cleanBinary);
+    </script>
 </body>
 </html>
